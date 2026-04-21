@@ -78,6 +78,67 @@ class Themed {
   /// Returns `true` if the theme exists, `false` otherwise.
   static bool hasTheme(String name) => _instance._themes.containsKey(name);
 
+  /// Returns `true` if the currently active theme is the built-in dark theme.
+  ///
+  /// This only returns `true` for the default 'dark' theme.
+  /// Custom themes with [Brightness.dark] will **not** be considered dark mode.
+  ///
+  /// Example:
+  /// ```dart
+  /// if (Themed.isDarkMode) {
+  ///   print('Dark theme is active');
+  /// }
+  /// ```
+  static bool get isDarkMode => _instance._currentThemeName == 'dark';
+
+  /// Returns `true` if the currently active theme is the built-in light theme.
+  ///
+  /// This only returns `true` for the default 'light' theme.
+  /// Custom themes with [Brightness.light] will **not** be considered light mode.
+  ///
+  /// Example:
+  /// ```dart
+  /// if (Themed.isLightMode) {
+  ///   print('Light theme is active');
+  /// }
+  /// ```
+  static bool get isLightMode => _instance._currentThemeName == 'light';
+
+  /// Returns `true` if the currently active theme is a custom theme.
+  ///
+  /// A custom theme is any theme that is not the built-in 'light' or 'dark' theme.
+  ///
+  /// Example:
+  /// ```dart
+  /// if (Themed.isCustomTheme) {
+  ///   print('A custom theme is active: ${Themed.currentThemeName}');
+  /// }
+  /// ```
+  static bool get isCustomTheme =>
+      _instance._currentThemeName != 'light' &&
+      _instance._currentThemeName != 'dark';
+
+  /// Returns `true` if the custom theme with the given [name] is currently active.
+  ///
+  /// Throws [Exception] if [name] is 'light' or 'dark' — use [isDarkMode] or
+  /// [isLightMode] instead for built-in themes.
+  ///
+  /// Example:
+  /// ```dart
+  /// if (Themed.isActiveCustomTheme('ocean')) {
+  ///   print('Ocean theme is active');
+  /// }
+  /// ```
+  static bool isActiveCustomTheme(String name) {
+    if (name == 'light' || name == 'dark') {
+      throw Exception(
+        'Use isDarkMode or isLightMode for built-in themes',
+      );
+    }
+
+    return _instance._currentThemeName == name;
+  }
+
   factory Themed() => _instance;
 
   Themed._internal() {
@@ -125,27 +186,42 @@ class Themed {
     }
   }
 
-  /// Toggles between light and dark themes.
+  /// Toggles between the built-in light and dark themes.
   ///
-  /// If the current theme is light, switches to dark.
+  /// If the current theme is light, switches to dark and vice versa.
   ///
-  /// If the current theme is dark, switches to light.
+  /// **Note:** If a custom theme is currently active, instead of toggling,
+  /// this method switches to the built-in theme that matches the custom
+  /// theme's [Brightness] — [Brightness.dark] maps to 'dark' and
+  /// [Brightness.light] maps to 'light'.
   ///
-  /// Custom themes toggle based on their [Brightness].
-  static void toggleTheme() async {
-    final isLight =
-        _instance.themeNotifier.value.brightness == Brightness.light;
+  /// Example:
+  /// ```dart
+  /// Themed.toggleTheme(); // light → dark
+  /// Themed.toggleTheme(); // dark → light
+  ///
+  /// Themed.setTheme('ocean'); // ocean has Brightness.dark
+  /// Themed.toggleTheme();     // ocean → dark (built-in)
+  /// ```
+  static void toggleTheme() {
+    if (isCustomTheme) {
+      setTheme(
+        _instance.themeNotifier.value.brightness == Brightness.dark
+            ? 'dark'
+            : 'light',
+      );
 
-    final newTheme = isLight ? 'dark' : 'light';
+      return;
+    }
 
-    setTheme(newTheme);
+    setTheme(isLightMode ? 'dark' : 'light');
   }
 
   /// Removes a custom theme.
   ///
   /// Throws [Exception] if attempting to remove 'light' or 'dark'.
   static void removeTheme(String name) {
-    if (name == 'light' || name == 'dark') {
+    if (name.toLowerCase() == 'light' || name.toLowerCase() == 'dark') {
       throw Exception("Can't remove default themes");
     }
 
@@ -193,7 +269,7 @@ class Themed {
     bool? useMaterial3,
     bool? useRippleEffect,
   }) {
-    if (name == 'light' || name == 'dark') {
+    if (name.toLowerCase() == 'light' || name.toLowerCase() == 'dark') {
       throw Exception("Can't override default themes");
     }
 

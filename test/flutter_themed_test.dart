@@ -324,4 +324,110 @@ void main() {
       expect(Themed.currentTheme.brightness, Brightness.dark);
     });
   });
+
+  group('Themed - Theme state properties', () {
+    setUp(() async {
+      await Themed.initialize();
+    });
+
+    test('isDarkMode should return true when dark theme is active', () {
+      Themed.setTheme('dark');
+      expect(Themed.isDarkMode, isTrue);
+      expect(Themed.isLightMode, isFalse);
+    });
+
+    test('isLightMode should return true when light theme is active', () {
+      Themed.setTheme('light');
+      expect(Themed.isLightMode, isTrue);
+      expect(Themed.isDarkMode, isFalse);
+    });
+
+    test('isCustomTheme should return false for built-in themes', () {
+      Themed.setTheme('light');
+      expect(Themed.isCustomTheme, isFalse);
+
+      Themed.setTheme('dark');
+      expect(Themed.isCustomTheme, isFalse);
+    });
+
+    test('isCustomTheme should return true when custom theme is active', () {
+      Themed.createTheme(
+        name: 'custom_state',
+        primaryColor: Colors.purple,
+        secondaryColor: Colors.amber,
+        brightness: Brightness.light,
+      );
+
+      Themed.setTheme('custom_state');
+      expect(Themed.isCustomTheme, isTrue);
+    });
+
+    test('isActiveCustomTheme should return true for active custom theme', () {
+      Themed.createTheme(
+        name: 'active_custom',
+        primaryColor: Colors.purple,
+        secondaryColor: Colors.amber,
+        brightness: Brightness.light,
+      );
+
+      Themed.setTheme('active_custom');
+      expect(Themed.isActiveCustomTheme('active_custom'), isTrue);
+    });
+
+    test('isActiveCustomTheme should return false for inactive custom theme',
+        () {
+      Themed.createTheme(
+        name: 'inactive_custom',
+        primaryColor: Colors.purple,
+        secondaryColor: Colors.amber,
+        brightness: Brightness.light,
+      );
+
+      Themed.setTheme('light');
+      expect(Themed.isActiveCustomTheme('inactive_custom'), isFalse);
+    });
+
+    test('isActiveCustomTheme should throw for built-in themes', () {
+      expect(() => Themed.isActiveCustomTheme('light'), throwsException);
+      expect(() => Themed.isActiveCustomTheme('dark'), throwsException);
+    });
+  });
+
+  group('Themed - toggleTheme with custom themes', () {
+    setUp(() async {
+      await Themed.initialize();
+    });
+
+    test(
+        'toggleTheme should switch to dark when custom theme has Brightness.dark',
+        () {
+      Themed.createTheme(
+        name: 'custom_dark',
+        primaryColor: Colors.purple,
+        secondaryColor: Colors.amber,
+        brightness: Brightness.dark,
+      );
+
+      Themed.setTheme('custom_dark');
+      Themed.toggleTheme();
+
+      expect(Themed.isDarkMode, isTrue);
+    });
+
+    test(
+        'toggleTheme should switch to light when custom theme has Brightness.light',
+        () {
+      Themed.createTheme(
+        name: 'custom_light',
+        primaryColor: Colors.purple,
+        secondaryColor: Colors.amber,
+        brightness: Brightness.light,
+      );
+
+      Themed.setTheme('custom_light');
+      Themed.toggleTheme();
+
+      expect(Themed.isLightMode, isTrue);
+    });
+  });
 }

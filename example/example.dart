@@ -81,6 +81,7 @@ class HomePage extends StatelessWidget {
                   ? Icons.dark_mode
                   : Icons.light_mode,
             ),
+            tooltip: 'Toggle light/dark theme',
             onPressed: () => Themed.toggleTheme(),
           ),
         ],
@@ -88,6 +89,9 @@ class HomePage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // ----------------------------------------------------------------
+          // Current theme info
+          // ----------------------------------------------------------------
           Card(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -105,11 +109,40 @@ class HomePage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
+                  const SizedBox(height: 16),
+                  // --------------------------------------------------------
+                  // Theme state properties
+                  // --------------------------------------------------------
+                  _ThemeStateRow(
+                    label: 'isDarkMode',
+                    value: Themed.isDarkMode,
+                  ),
+                  _ThemeStateRow(
+                    label: 'isLightMode',
+                    value: Themed.isLightMode,
+                  ),
+                  _ThemeStateRow(
+                    label: 'isCustomTheme',
+                    value: Themed.isCustomTheme,
+                  ),
+                  if (Themed.isCustomTheme)
+                    _ThemeStateRow(
+                      label:
+                          'isActiveCustomTheme("${Themed.currentThemeName}")',
+                      value: Themed.isActiveCustomTheme(
+                        Themed.currentThemeName,
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
+
           const SizedBox(height: 24),
+
+          // ----------------------------------------------------------------
+          // Available themes list
+          // ----------------------------------------------------------------
           Text(
             'Available Themes',
             style: Theme.of(context).textTheme.titleLarge,
@@ -135,17 +168,41 @@ class HomePage extends StatelessWidget {
   }
 
   IconData _getIcon(String theme) {
-    switch (theme.toLowerCase()) {
-      case 'light':
-        return Icons.wb_sunny;
-      case 'dark':
-        return Icons.nightlight_round;
-      case 'ocean':
-        return Icons.water;
-      case 'sunset':
-        return Icons.wb_twilight;
-      default:
-        return Icons.palette;
-    }
+    return switch (theme.toLowerCase()) {
+      'light' => Icons.wb_sunny,
+      'dark' => Icons.nightlight_round,
+      'ocean' => Icons.water,
+      'sunset' => Icons.wb_twilight,
+      _ => Icons.palette,
+    };
+  }
+}
+
+// ============================================================================
+// Helper widget
+// ============================================================================
+
+class _ThemeStateRow extends StatelessWidget {
+  final String label;
+  final bool value;
+
+  const _ThemeStateRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          Icon(
+            value ? Icons.check_circle : Icons.cancel,
+            color: value ? Colors.green : Colors.red,
+            size: 20,
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -16,7 +16,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_themed: ^1.0.0+3
+  flutter_themed: ^1.1.0
 ```
 
 Then run:

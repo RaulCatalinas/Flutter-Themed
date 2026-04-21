@@ -29,3 +29,5 @@ migrate_working_dir/
 /coverage/
 
 mock_theme_storage.json
+
+/doc

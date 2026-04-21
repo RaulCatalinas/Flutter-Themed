@@ -1,6 +1,6 @@
 name: flutter_themed
 description: "Theme switching for Flutter apps. Supports light, dark, and custom themes with optional persistence."
-version: 1.0.0+3
+version: 1.1.0
 repository: https://github.com/RaulCatalinas/Flutter-Themed
 
 environment:
@@ -14,4 +14,4 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
