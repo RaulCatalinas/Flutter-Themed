@@ -15,6 +15,7 @@
 ## 1.0.0+3
 
 - Improved package description for clarity.
+
 ## 1.1.0
 
 ### Added
@@ -25,3 +26,12 @@
 
 ### Changed
 - `toggleTheme` now switches to the nearest built-in theme based on `Brightness` when a custom theme is active, instead of always defaulting to light
+
+## 1.2.0
+
+### Added
+- `ThemedApp.router` — named constructor that wraps `MaterialApp.router`, enabling full compatibility with any `RouterConfig` implementation (go_router, auto_route, etc.)
+- No dependency on any routing package — `flutter_themed` uses Flutter's native `RouterConfig` interface
+
+### Changed
+- Updated FAQ: `ThemedApp` now supports both `MaterialApp` and `MaterialApp.router`

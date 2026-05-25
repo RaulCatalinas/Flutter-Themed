@@ -54,6 +54,10 @@ void main() async {
   runApp(const MyApp());
 }
 
+// ============================================================================
+// STANDARD USAGE — ThemedApp (drop-in for MaterialApp)
+// ============================================================================
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -65,6 +69,38 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// ============================================================================
+// ROUTER USAGE — ThemedApp.router (drop-in for MaterialApp.router)
+// Works with go_router, auto_route, or any RouterConfig implementation.
+// flutter_themed has no dependency on any routing package.
+// ============================================================================
+
+// Uncomment and adapt to use ThemedApp.router:
+//
+// import 'package:go_router/go_router.dart';
+//
+// final _router = GoRouter(
+//   routes: [
+//     GoRoute(path: '/', builder: (context, state) => const HomePage()),
+//   ],
+// );
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ThemedApp.router(
+//       title: 'Theme Manager Demo',
+//       routerConfig: _router,
+//     );
+//   }
+// }
+
+// ============================================================================
+// HOME PAGE
+// ============================================================================
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

@@ -1,36 +1,57 @@
 import 'package:flutter/material.dart'
-    show
-        Brightness,
-        Builder,
-        Colors,
-        ElevatedButton,
-        MaterialApp,
-        Navigator,
-        Scaffold,
-        Text,
-        Theme;
+    show Brightness, Builder, Colors, MaterialApp, Scaffold, Text, Theme;
 import 'package:flutter_test/flutter_test.dart'
-    show WidgetTester, expect, find, findsOneWidget, group, setUp, testWidgets;
+    show
+        WidgetTester,
+        expect,
+        find,
+        findsOneWidget,
+        group,
+        setUp,
+        testWidgets,
+        findsNothing;
 import 'package:flutter_themed/flutter_themed.dart' show Themed;
 import 'package:flutter_themed/themed_app.dart' show ThemedApp;
+import 'package:go_router/go_router.dart' show GoRoute, GoRouter;
+
+GoRouter _buildRouter({String initialLocation = '/'}) {
+  return GoRouter(
+    initialLocation: initialLocation,
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => Scaffold(body: Text('Home')),
+      ),
+      GoRoute(
+        path: '/second',
+        builder: (context, state) => Scaffold(body: Text('Second Screen')),
+      ),
+    ],
+  );
+}
 
 void main() {
   setUp(() async {
     await Themed.initialize();
   });
 
-  group('ThemedApp', () {
-    testWidgets('should build with MaterialApp', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ThemedApp(
-          title: 'Test App',
-          home: Scaffold(body: Text('Home')),
-        ),
-      );
+  group('ThemedApp.router', () {
+    testWidgets(
+      'should build with MaterialApp.router',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          ThemedApp.router(
+            title: 'Test App',
+            routerConfig: _buildRouter(),
+          ),
+        );
 
-      expect(find.byType(MaterialApp), findsOneWidget);
-      expect(find.text('Home'), findsOneWidget);
-    });
+        await tester.pumpAndSettle();
+
+        expect(find.byType(MaterialApp), findsOneWidget);
+        expect(find.text('Home'), findsOneWidget);
+      },
+    );
 
     testWidgets(
       'should use current theme from Themed',
@@ -38,19 +59,15 @@ void main() {
         Themed.setTheme('light');
 
         await tester.pumpWidget(
-          ThemedApp(
+          ThemedApp.router(
             title: 'Test App',
-            home: Builder(
-              builder: (context) => Scaffold(
-                body: Text('Content'),
-              ),
-            ),
+            routerConfig: _buildRouter(),
           ),
         );
 
         await tester.pumpAndSettle();
 
-        final context = tester.element(find.text('Content'));
+        final context = tester.element(find.text('Home'));
         expect(Theme.of(context).brightness, Brightness.light);
       },
     );
@@ -61,26 +78,21 @@ void main() {
         Themed.setTheme('light');
 
         await tester.pumpWidget(
-          ThemedApp(
+          ThemedApp.router(
             title: 'Test App',
-            home: Builder(
-              builder: (context) => Scaffold(
-                body: Text('Content'),
-              ),
-            ),
+            routerConfig: _buildRouter(),
           ),
         );
 
         await tester.pumpAndSettle();
 
-        var context = tester.element(find.text('Content'));
+        var context = tester.element(find.text('Home'));
         expect(Theme.of(context).brightness, Brightness.light);
 
-        // Change theme
         Themed.setTheme('dark');
         await tester.pumpAndSettle();
 
-        context = tester.element(find.text('Content'));
+        context = tester.element(find.text('Home'));
         expect(Theme.of(context).brightness, Brightness.dark);
       },
     );
@@ -98,17 +110,15 @@ void main() {
         Themed.setTheme('custom');
 
         await tester.pumpWidget(
-          ThemedApp(
+          ThemedApp.router(
             title: 'Test App',
-            home: Builder(
-              builder: (context) => Scaffold(body: Text('Content')),
-            ),
+            routerConfig: _buildRouter(),
           ),
         );
 
         await tester.pumpAndSettle();
 
-        final context = tester.element(find.text('Content'));
+        final context = tester.element(find.text('Home'));
         expect(Theme.of(context).colorScheme.primary, Colors.purple);
       },
     );
@@ -117,20 +127,16 @@ void main() {
       'should apply fontFamily to theme',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          ThemedApp(
+          ThemedApp.router(
             title: 'Test App',
             fontFamily: 'Roboto',
-            home: Builder(
-              builder: (context) => Scaffold(
-                body: Text('Content'),
-              ),
-            ),
+            routerConfig: _buildRouter(),
           ),
         );
 
         await tester.pumpAndSettle();
 
-        final context = tester.element(find.text('Content'));
+        final context = tester.element(find.text('Home'));
         expect(Theme.of(context).textTheme.bodyLarge?.fontFamily, 'Roboto');
       },
     );
@@ -140,32 +146,71 @@ void main() {
       (WidgetTester tester) async {
         Themed.setTheme('dark');
 
+        final router = _buildRouter();
+
         await tester.pumpWidget(
-          ThemedApp(
+          ThemedApp.router(
             title: 'Test App',
-            routes: {
-              '/': (context) => Scaffold(
-                    body: ElevatedButton(
-                      onPressed: () => Navigator.pushNamed(context, '/second'),
-                      child: Text('Go'),
-                    ),
-                  ),
-              '/second': (context) => Scaffold(
-                    body: Text('Second Screen'),
-                  ),
-            },
+            routerConfig: router,
           ),
         );
 
         await tester.pumpAndSettle();
 
-        var context = tester.element(find.text('Go'));
+        var context = tester.element(find.text('Home'));
         expect(Theme.of(context).brightness, Brightness.dark);
 
-        await tester.tap(find.text('Go'));
+        router.go('/second');
         await tester.pumpAndSettle();
 
         context = tester.element(find.text('Second Screen'));
+        expect(Theme.of(context).brightness, Brightness.dark);
+      },
+    );
+
+    testWidgets(
+      'should render correct initial route',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          ThemedApp.router(
+            title: 'Test App',
+            routerConfig: _buildRouter(initialLocation: '/second'),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Second Screen'), findsOneWidget);
+        expect(find.text('Home'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'should use Builder to access theme via context',
+      (WidgetTester tester) async {
+        Themed.setTheme('dark');
+
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => Builder(
+                builder: (context) => Scaffold(body: Text('Content')),
+              ),
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          ThemedApp.router(
+            title: 'Test App',
+            routerConfig: router,
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        final context = tester.element(find.text('Content'));
         expect(Theme.of(context).brightness, Brightness.dark);
       },
     );

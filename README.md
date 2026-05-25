@@ -6,7 +6,8 @@ A simple, plug-and-play theme management library for Flutter with optional persi
 
 ✨ **Zero Configuration** - Works out of the box with light and dark themes  
 🎨 **Unlimited Custom Themes** - Create as many themes as you need with a simple API  
-🚀 **Drop-in Replacement** - Just replace `MaterialApp` with `ThemedApp`
+🚀 **Drop-in Replacement** - Just replace `MaterialApp` with `ThemedApp`  
+🔀 **Router Support** - Full compatibility with `MaterialApp.router` via `ThemedApp.router`
 
 ## Getting Started
 
@@ -16,7 +17,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_themed: ^1.1.0
+  flutter_themed: ^1.2.0
 ```
 
 Then run:
@@ -64,6 +65,38 @@ class MyApp extends StatelessWidget {
 ```
 
 That's it! Your app now supports light and dark themes with a single button.
+
+## Router Support
+
+`ThemedApp.router` is a drop-in replacement for `MaterialApp.router`. It works with any `RouterConfig` implementation — go_router, auto_route, and others. `flutter_themed` has no dependency on any routing package.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_themed/flutter_themed.dart';
+import 'package:go_router/go_router.dart';
+
+final _router = GoRouter(
+  routes: [
+    GoRoute(path: '/', builder: (context, state) => const HomePage()),
+  ],
+);
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ThemedApp.router(
+      title: 'My App',
+      routerConfig: _router,
+    );
+  }
+}
+```
 
 ## Storage Adapter (Optional)
 
@@ -227,7 +260,7 @@ Themed.createTheme(
 
 ### ThemedApp Widget
 
-`ThemedApp` is a drop-in replacement for `MaterialApp` that automatically handles theme changes. It accepts all the same parameters as `MaterialApp`:
+`ThemedApp` is a drop-in replacement for `MaterialApp` that automatically handles theme changes:
 
 ```dart
 ThemedApp(
@@ -236,6 +269,15 @@ ThemedApp(
   routes: {...},
   // Don't use theme or darkTheme - Themed handles them
   // ... all other MaterialApp parameters work normally
+)
+```
+
+`ThemedApp.router` is a drop-in replacement for `MaterialApp.router`:
+
+```dart
+ThemedApp.router(
+  title: 'My App',
+  routerConfig: myRouter, // Any RouterConfig implementation
 )
 ```
 
@@ -358,7 +400,7 @@ If you don't provide an adapter, the library still works — just without persis
 
 ### Does it work with MaterialApp.router?
 
-Currently, Flutter Theme Manager only supports the standard `MaterialApp`. Support for `MaterialApp.router` may be added in a future version.
+Yes! Use `ThemedApp.router` as a drop-in replacement for `MaterialApp.router`. It accepts any `RouterConfig` implementation — go_router, auto_route, and others. `flutter_themed` has no dependency on any routing package.
 
 ### Can I change themes programmatically?
 
